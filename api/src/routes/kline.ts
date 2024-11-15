@@ -1,6 +1,5 @@
 import { Client } from 'pg';
-import { Router } from "express";
-import { RedisManager } from "../RedisManager";
+import { Request, Response, Router } from "express";
 
 const pgClient = new Client({
     user: 'your_user',
@@ -13,40 +12,61 @@ pgClient.connect();
 
 export const klineRouter = Router();
 
-klineRouter.get("/", async (req, res) => {
-    const { market, interval, startTime, endTime } = req.query;
+interface KlineQueryParams {
+    market?: string;
+    interval?: '1m' | '1h' | '1w';
+    startTime?: string;
+    endTime?: string;
+}
+const handler = async (req:any,res:any) => {
+    const { interval, startTime, endTime } = req.query;
 
-    let query;
-    switch (interval) {
-        case '1m':
-            query = `SELECT * FROM klines_1m WHERE bucket >= $1 AND bucket <= $2`;
-            break;
-        case '1h':
-            query = `SELECT * FROM klines_1m WHERE  bucket >= $1 AND bucket <= $2`;
-            break;
-        case '1w':
-            query = `SELECT * FROM klines_1w WHERE bucket >= $1 AND bucket <= $2`;
-            break;
-        default:
-            return res.status(400).send('Invalid interval');
+    // Validate query parameters
+    if (!interval || !startTime || !endTime) {
+        return res.status(400).json({ error: 'Missing required query parameters' });
     }
+
+    const start = new Date(Number(startTime) * 1000);
+    const end = new Date(Number(endTime) * 1000);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ error: 'Invalid start or end time' });
+    }
+
+    // Table mapping based on interval
+    const tableMap: Record<string, string> = {
+        '1m': 'klines_1m',
+        '1h': 'klines_1h',
+        '1w': 'klines_1w',
+    };
+
+    const tableName = tableMap[interval];
+    if (!tableName) {
+        return res.status(400).json({ error: 'Invalid interval' });
+    }
+
+    const query = `SELECT * FROM ${tableName} WHERE bucket >= $1 AND bucket <= $2`;
 
     try {
-        //@ts-ignore
-        const result = await pgClient.query(query, [new Date(startTime * 1000 as string), new Date(endTime * 1000 as string)]);
-        res.json(result.rows.map(x => ({
-            close: x.close,
-            end: x.bucket,
-            high: x.high,
-            low: x.low,
-            open: x.open,
-            quoteVolume: x.quoteVolume,
-            start: x.start,
-            trades: x.trades,
-            volume: x.volume,
-        })));
+        const result = await pgClient.query(query, [start, end]);
+        
+        // Map result rows to a structured response
+        const response = result.rows.map(row => ({
+            close: row.close,
+            end: row.bucket,
+            high: row.high,
+            low: row.low,
+            open: row.open,
+            quoteVolume: row.quoteVolume,
+            start: row.start,
+            trades: row.trades,
+            volume: row.volume,
+        }));
+
+        res.json(response);
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err);
+        console.error('Database query error:', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
-});
+};
+klineRouter.get("/",handler );

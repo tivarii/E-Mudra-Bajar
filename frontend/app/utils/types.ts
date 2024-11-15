@@ -38,3 +38,11 @@ export interface Ticker {
     "trades": string,
     "volume": string
 }
+
+type OrderType = {
+    market: string,
+    price: string,
+    quantity: string,
+    side: "buy" | "sell",
+    userId: string
+};
