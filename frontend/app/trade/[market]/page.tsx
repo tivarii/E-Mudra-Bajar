@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 
 export default function Page() {
     // const { market } = useParams();
-    const market ="TATA";
+    const market ="TATA_INR";
     return <div className="flex flex-row flex-1">
         <div className="flex flex-col flex-1">
             <MarketBar market={market as string} />

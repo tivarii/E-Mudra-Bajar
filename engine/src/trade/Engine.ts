@@ -4,8 +4,7 @@ import { ORDER_UPDATE, TRADE_ADDED } from "../types/index";
 import { CANCEL_ORDER, CREATE_ORDER, GET_DEPTH, GET_OPEN_ORDERS, MessageFromApi, ON_RAMP } from "../types/fromApi";
 import { Fill, Order, Orderbook } from "./Orderbook";
 
-//Avoid floats everywhere, use a decimal 
-
+//TODO: Avoid floats everywhere, use a decimal similar to the PayTM project for every currency
 export const BASE_CURRENCY = "INR";
 
 interface UserBalance {
@@ -21,6 +20,7 @@ export class Engine {
 
     constructor() {
         let snapshot = null
+        // console.log(`snashot is ${process.env.WITH_SNAPSHOT}`);
         try {
             if (process.env.WITH_SNAPSHOT) {
                 snapshot = fs.readFileSync("./snapshot.json");
@@ -28,13 +28,13 @@ export class Engine {
         } catch (e) {
             console.log("No snapshot found");
         }
-
         if (snapshot) {
             const snapshotSnapshot = JSON.parse(snapshot.toString());
             this.orderbooks = snapshotSnapshot.orderbooks.map((o: any) => new Orderbook(o.baseAsset, o.bids, o.asks, o.lastTradeId, o.currentPrice));
             this.balances = new Map(snapshotSnapshot.balances);
         } else {
-            this.orderbooks = [new Orderbook(`TATA`, [], [], 0, 0)];
+            this.orderbooks = [new Orderbook(`TATA`, [], [], 100000, 100000)];
+            // console.log(`\n\nsnapshot is here:${this.orderbooks}`);
             this.setBaseBalances();
         }
         setInterval(() => {
@@ -178,7 +178,7 @@ export class Engine {
     }
 
     createOrder(market: string, price: string, quantity: string, side: "buy" | "sell", userId: string) {
-
+        // console.log(this.orderbooks);
         const orderbook = this.orderbooks.find(o => o.ticker() === market)
         const baseAsset = market.split("_")[0];
         const quoteAsset = market.split("_")[1];
@@ -200,9 +200,9 @@ export class Engine {
         
         const { fills, executedQty } = orderbook.addOrder(order);
         this.updateBalance(userId, baseAsset, quoteAsset, side, fills, executedQty);
-//after adding db
-        // this.createDbTrades(fills, market, userId);
-        // this.updateDbOrders(order, executedQty, fills, market);
+
+        this.createDbTrades(fills, market, userId);
+        this.updateDbOrders(order, executedQty, fills, market);
         this.publisWsDepthUpdates(fills, price, side, market);
         this.publishWsTrades(fills, userId, market);
         return { executedQty, fills, orderId: order.orderId };

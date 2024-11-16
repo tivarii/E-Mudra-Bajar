@@ -20,6 +20,7 @@ interface KlineQueryParams {
 }
 const handler = async (req:any,res:any) => {
     const { interval, startTime, endTime } = req.query;
+    
 
     // Validate query parameters
     if (!interval || !startTime || !endTime) {

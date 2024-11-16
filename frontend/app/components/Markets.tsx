@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Ticker } from "../utils/types";
-import { getTickers } from "../utils/httpClient";
+import { getMarkets } from "../utils/httpClient";
 import { useRouter } from "next/navigation";
 
 export const Markets = () => {
-  const [tickers, setTickers] = useState<Ticker[]>([]);
+  const [markets, setMarkets] = useState<Ticker[]>([]);
 
   useEffect(() => {
-    getTickers().then((m) => {
+    getMarkets().then((m) => {
       // Ensure the result is an array
-      setTickers(Array.isArray(m) ? m : [m]);
+      setMarkets(Array.isArray(m) ? m : [m]);
     });
-    console.log(tickers);
+    console.log(markets);
   }, []);
 
   return (
@@ -23,7 +23,7 @@ export const Markets = () => {
           <table className="w-full table-auto">
             <MarketHeader />
             <tbody>
-              {tickers.map((ticker, index) => (
+              {markets.map((ticker, index) => (
                 <MarketRow key={index} market={ticker} />
               ))}
             </tbody>

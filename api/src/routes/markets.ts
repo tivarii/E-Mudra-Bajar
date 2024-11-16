@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { Ticker } from "../types/types";
-export const tickersRouter = Router();
+export const marketsRouter = Router();
 const sampleTickers: Ticker[] = [
     {
-      firstPrice: "990",
-      high: "1200",
-      lastPrice: "1000",
-      low: "900",
+      firstPrice: "495",
+      high: "510",
+      lastPrice: "500",
+      low: "480",
       priceChange: "5",
       priceChangePercent: "1.01",
       quoteVolume: "25000000",
-      symbol: "TATA",
+      symbol: "BNBUSD",
       trades: "3000",
       volume: "5000",
     },
@@ -399,7 +399,7 @@ const sampleTickers: Ticker[] = [
       volume: "8000",
     },
   ];
-tickersRouter.get("/",(req,res)=>{
+marketsRouter.get("/",(req,res)=>{
   
     res.json(sampleTickers);
 })

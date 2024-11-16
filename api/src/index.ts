@@ -5,6 +5,7 @@ import { depthRouter } from "./routes/depth";
 import { tradesRouter } from "./routes/trades";
 import { klineRouter } from "./routes/kline";
 import { tickersRouter } from "./routes/ticker";
+import { marketsRouter } from "./routes/markets";
 
 const app = express();
 app.use(cors());
@@ -15,7 +16,7 @@ app.use("/api/v1/depth", depthRouter);
 app.use("/api/v1/trades", tradesRouter);
 app.use("/api/v1/klines", klineRouter);
 app.use("/api/v1/tickers", tickersRouter);
-
+app.use("/api/v1/markets",marketsRouter)
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");

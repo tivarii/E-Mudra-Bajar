@@ -67,6 +67,7 @@ export class Orderbook {
                 fills
             }
         } else {
+            console.log(`\n\nhere \n\n`)
             const {executedQty, fills} = this.matchAsk(order);
             order.filled = executedQty;
             if (executedQty === order.quantity) {
@@ -120,6 +121,7 @@ export class Orderbook {
         for (let i = 0; i < this.bids.length; i++) {
             if (this.bids[i].price >= order.price && executedQty < order.quantity) {
                 const amountRemaining = Math.min(order.quantity - executedQty, this.bids[i].quantity);
+                console.log(`${this.bids[i]}\n\n`);
                 executedQty += amountRemaining;
                 this.bids[i].filled += amountRemaining;
                 fills.push({
@@ -131,12 +133,14 @@ export class Orderbook {
                 });
             }
         }
+        console.log(`bids is ${this.bids}\n\n`);
         for (let i = 0; i < this.bids.length; i++) {
             if (this.bids[i].filled === this.bids[i].quantity) {
                 this.bids.splice(i, 1);
                 i--;
             }
         }
+        console.log(`bids is ${this.bids}\n\n`);
         return {
             fills,
             executedQty

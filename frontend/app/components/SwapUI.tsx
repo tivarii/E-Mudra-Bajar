@@ -94,6 +94,7 @@ export function SwapUI({ market }: {market: string}) {
 </div>
 async function handle(){
     const side = (activeTab === "buy")?"buy":"sell";
+    console.log("I am here");
     const data = await orderRoute(quantity,price,side);
 }
 }
