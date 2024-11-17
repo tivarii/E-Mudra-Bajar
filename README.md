@@ -2,6 +2,9 @@
 
 **E-Mudra-Bajar** is a real-time stock trading application designed to facilitate stock purchasing and selling with support for both limit and market orders. This application utilizes WebSockets for live updates, Redis for fast data processing, and TimescaleDB for time-series data storage, aiming to provide a scalable, responsive, and robust trading experience.
 
+## Running Instance
+https://www.loom.com/share/695bb8c9731049299e5dd31ceb147448
+
 ## Architecture
  
 ![art](https://github.com/user-attachments/assets/e0af25b0-231f-4b93-baba-10c42f10d6ee)
